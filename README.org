@@ -1,0 +1,16 @@
+#+TITLE: Blobber
+
+Blobber is a tool to store BLOBs (Binary Large Objects).
+
+#+begin_example sh
+$ nix run github:nagy/blobber
+#+end_example
+
+* Mirrors
+
+- https://github.com/nagy/blobber
+- https://gitlab.com/nagy/blobber
+- https://git.sr.ht/~nagy/blobber
+
+* License
+AGPL 3
