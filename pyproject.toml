@@ -3,6 +3,10 @@ name = "blobber"
 version = "0.1.0"
 description = ""
 authors = ["Daniel Nagy <danielnagy@posteo.de>"]
+packages = [
+  { include = "blobber.py" },
+  { include = "fixtar.py" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -11,6 +15,7 @@ click = "^8.0.3"
 
 [tool.poetry.scripts]
 blobber = "blobber:main"
+fixtar = "fixtar:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
