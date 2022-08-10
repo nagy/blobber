@@ -30,7 +30,7 @@ def make_fixtar(path: Path):
         return filename
 
 
-def make_sha256sums(path: str):
+def make_sha256sums(path: Path):
     assert not os.path.exists("SHA256SUMS")
     with open("SHA256SUMS", "wb") as shafile:
         run(

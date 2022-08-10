@@ -21,7 +21,6 @@ class Hash(str):
     def hash(self):
         return self[:43]
 
-
     @cached_property
     def only_path(self):
         return self[0:2] + "/" + self[2:4] + "/"
@@ -109,7 +108,7 @@ class FileStorage(Storage):
         return self.path + "/" + hash
 
     def put(self, filename: str):
-        hash = blob_hash(filename)
+        hash = blob_hash2(filename)
         if hash not in self:
             newpath = self.path + "/" + hash
             shutil.copyfile(os.path.expanduser(filename), newpath)
@@ -166,6 +165,21 @@ def blob_hash(filename) -> Hash:
         hash = base64.b64encode(digest).decode()
         hash = hash.replace("/", "_").replace("=", "")
         basename = os.path.basename(filename)
+        return Hash(hash + "-" + basename)
+
+
+def blob_hash2(filename) -> Hash:
+    sha = hashlib.sha256()
+    with open(os.path.expanduser(filename), "rb") as f:
+        while n := f.read(128 * 1024):
+            sha.update(n)
+        digest = sha.digest()[:20]
+        hash = base64.b32encode(digest).decode().lower()
+        basename = os.path.basename(filename)
+        if basename.startswith(blob_hash(filename).hash + "-"):
+            basename = basename[44:]
+        if basename.startswith(hash):
+            basename = basename[33:]
         return Hash(hash + "-" + basename)
 
 
@@ -226,7 +240,7 @@ def find(hash: str):
 @click.argument("filenames", nargs=-1, type=click.Path(exists=True))
 def hashfile(filenames):
     for file in filenames:
-        hash = blob_hash(file)
+        hash = blob_hash2(file)
         print(hash)
 
 
