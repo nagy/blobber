@@ -21,6 +21,7 @@
 
 (require 'magit)
 (require 'blobber)
+(require 'consult)
 
 (defvar-local blobber-mode-identifier nil "Buffer-local object holding an `nix-store-path` object.")
 
@@ -30,6 +31,20 @@
     (magit-insert-heading
       (propertize (format "%-12s" "Identifier:") 'face 'magit-section-heading)
       blobber-mode-identifier)))
+
+(cl-defun blobber-mode-insert-hash ()
+  "Insert a section showing the size of STORE-PATH."
+  (magit-insert-section (hash "hash")
+    (magit-insert-heading
+      (propertize (format "%-12s" "Hash:") 'face 'magit-section-heading)
+      (blobber--hash))))
+
+(cl-defun blobber-mode-insert-name ()
+  "Insert a section showing the size of STORE-PATH."
+  (magit-insert-section (name "name")
+    (magit-insert-heading
+      (propertize (format "%-12s" "Name:") 'face 'magit-section-heading)
+      (blobber--name))))
 
 (cl-defun blobber-mode-insert-size ()
   "Insert a section showing the size of STORE-PATH."
@@ -54,7 +69,9 @@
       (format "%s" (mailcap-file-name-to-mime-type blobber-mode-identifier)))))
 
 (defcustom blobber-mode-headers-hook
-  '(blobber-mode-insert-identifier
+  '(;; blobber-mode-insert-identifier
+    blobber-mode-insert-hash
+    blobber-mode-insert-name
     blobber-mode-insert-size
     blobber-mode-insert-tvf-found
     blobber-mode-insert-mime)
@@ -78,11 +95,15 @@ A list of functions."
 (defun blobber--hash ()
   (substring blobber--hash 0 32))
 
+(defun blobber--name ()
+  (substring blobber--hash 33))
+
 ;;;###autoload
 (defun blobber-bookmark-jump (bm)
   "Jump to the blobber bookmark BM."
   (interactive (list (read-from-minibuffer "Bookmark: ")))
   (blobber-show (bookmark-prop-get bm 'filename)))
+(put 'blobber-bookmark-jump 'bookmark-handler-type "Blobber")
 
 (defun blobber--bookmark-make-record-function ()
   "A function to be used as `bookmark-make-record-function'."

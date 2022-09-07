@@ -91,10 +91,10 @@
             (delete-file file)))
   (revert-buffer-without-query))
 
-(defvar-keymap blobber-map
-  :doc "Keymap for blobber."
-  "p" #'blobber-put
-  "f" #'blobber-file)
+(defvar blobber-map (make-sparse-keymap))
+  ;; :doc "Keymap for blobber."
+  ;; "p" #'blobber-put
+  ;; "f" #'blobber-file
 
 (defun blobber ()
   (interactive)
