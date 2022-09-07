@@ -9,25 +9,22 @@ import shutil
 
 # some idempotency comments:
 # https://stackoverflow.com/questions/32997526/how-to-create-a-tar-file-that-omits-timestamps-for-its-contents
-def make_fixtar(path: Path):
-    filename = path.name + ".fix.tar"
-    with open(filename, "wb") as tmpfile:
-        run(
-            [
-                "tar",
-                "--sort=name",
-                "--numeric-owner",
-                "--owner=0",
-                "--group=0",
-                "-cf",
-                "-",
-                ".",
-            ],
-            check=True,
-            stdout=tmpfile,
-            cwd=path,
-        )
-        return filename
+def make_fixtar(path: Path, tarpath: Path):
+    run(
+        [
+            "tar",
+            "--sort=name",
+            "--numeric-owner",
+            "--owner=0",
+            "--group=0",
+            "--append",
+            "-f",
+            tarpath.absolute(),
+            ".",
+        ],
+        check=True,
+        cwd=path,
+    )
 
 
 def make_sha256sums(path: Path):
@@ -43,7 +40,7 @@ def make_sha256sums(path: Path):
         os.chmod(shafile.name, 0o444)
 
 
-def add_sha256sums(tarfile: str):
+def add_sha256sums(tarpath: Path):
     run(
         [
             "tar",
@@ -51,9 +48,8 @@ def add_sha256sums(tarfile: str):
             "--owner=0",
             "--group=0",
             "--mtime=UTC 1970-01-01",
-            "--append",
-            "-f",
-            tarfile,
+            "-cf",
+            tarpath,
             "SHA256SUMS",
         ],
         check=True,
@@ -67,13 +63,15 @@ def main(args: List[str] = sys.argv):
             path = Path(path)
             assert not os.path.exists("SHA256SUMS")
             assert path.is_dir()
-            tar = make_fixtar(path)
             make_sha256sums(path)
-            add_sha256sums(tar)
+            path = path
+            tarpath = Path(path.name + ".fix.tar")
+            add_sha256sums(tarpath)
             os.remove("SHA256SUMS")
-            shutil.copystat(path, tar)
-            os.chmod(tar, 0o444)
-            print(tar)
+            make_fixtar(path, tarpath)
+            shutil.copystat(path, tarpath)
+            os.chmod(tarpath, 0o444)
+            print(tarpath)
     else:
         print("command not found:", cmd, file=sys.stderr)
         sys.exit(1)
