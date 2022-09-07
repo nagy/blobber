@@ -15,11 +15,11 @@ import click
 class Hash(str):
     @cached_property
     def name(self):
-        return self[44:]
+        return self[33:]
 
     @cached_property
     def hash(self):
-        return self[:43]
+        return self[:32]
 
     @cached_property
     def only_path(self):
