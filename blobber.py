@@ -256,7 +256,12 @@ def hashfile(filenames):
 @click.argument("filenames", nargs=-1, type=click.Path(exists=True))
 def put(filenames):
     for file in filenames:
-        if hash := FileStorage("~/.local/share/blobber/") << file:
+        if (
+            hash := FileStorage(
+                os.environ.get("BLOBBER_PUT_PATH", "~/.local/share/blobber/")
+            )
+            << file
+        ):
             print(hash)
 
 
