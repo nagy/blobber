@@ -182,6 +182,14 @@ def blob_hash2(filename) -> Hash:
             basename = basename[33:]
         return Hash(hash + "-" + basename)
 
+def blob_hash_io(ioobj) -> Hash:
+    sha = hashlib.sha256()
+    while n := ioobj.read(128 * 1024):
+        sha.update(n)
+    digest = sha.digest()[:20]
+    hash = base64.b32encode(digest).decode().lower()
+    return Hash(hash)
+
 
 @click.group()
 def main():
