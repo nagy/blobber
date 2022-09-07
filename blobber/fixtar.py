@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import os
+import shutil
 import sys
 from pathlib import Path
 from subprocess import run
 from typing import List
-import shutil
 
 
 # some idempotency comments:

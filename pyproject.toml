@@ -1,12 +1,8 @@
 [tool.poetry]
 name = "blobber"
 version = "0.1.0"
-description = ""
+description = "Tool to store BLOBs (Binary Large Objects)"
 authors = ["Daniel Nagy <danielnagy@posteo.de>"]
-packages = [
-  { include = "blobber.py" },
-  { include = "fixtar.py" },
-]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -14,8 +10,8 @@ xdg = "^5.1.1"
 click = "^8.0.3"
 
 [tool.poetry.scripts]
-blobber = "blobber:main"
-fixtar = "fixtar:main"
+blobber = "blobber.cli:main"
+fixtar = "blobber.fixtar:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

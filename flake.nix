@@ -8,7 +8,15 @@
         packages.default =
           (mkPoetryApplication { projectDir = ./.; }).overrideAttrs (old: {
             nativeBuildInputs = old.nativeBuildInputs or [ ]
-              ++ [ pkgs.installShellFiles ];
+              ++ [ pkgs.installShellFiles pkgs.pyright ];
+            pythonImportsCheck = [ "blobber" ];
+
+            doCheck = true;
+
+            postCheck = ''
+            pyright --warnings
+            '';
+
             postInstall = ''
               installShellCompletion --cmd blobber \
                     --bash <(_BLOBBER_COMPLETE=bash_source $out/bin/blobber) \
