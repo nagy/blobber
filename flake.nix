@@ -1,6 +1,5 @@
 {
   inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
-  inputs.flake-utils.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
