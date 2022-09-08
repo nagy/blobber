@@ -6,13 +6,15 @@ from functools import cached_property
 
 
 class Hash(str):
+    HASHLEN = 32
+
     @cached_property
     def name(self):
-        return self[33:]
+        return self[self.HASHLEN + 1 :]
 
     @cached_property
     def hash(self):
-        return self[:32]
+        return self[: self.HASHLEN]
 
     @cached_property
     def only_path(self):
@@ -33,7 +35,7 @@ def hashit(obj) -> Hash:
     if isinstance(obj, str):
         basename = os.path.basename(obj)
         if basename.startswith(hash):
-            basename = basename[33:]
+            basename = basename[Hash.HASHLEN + 1 :]
         return Hash(hash + "-" + basename)
     else:
         return Hash(hash)
