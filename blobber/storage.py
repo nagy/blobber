@@ -1,4 +1,5 @@
 import io
+import json
 import os
 import shutil
 from abc import ABC, abstractmethod
@@ -47,8 +48,8 @@ class Storage(ABC):
     def __contains__(self, other: Hash) -> bool:
         return self.exists(other)
 
-    def __truediv__(self, other: Hash) -> io.BufferedReader:
-        return self.open(other)
+    def __getitem__(self, key) -> io.BufferedReader:
+        return self.open(key)
 
     def __str__(self):
         return self.path
@@ -99,3 +100,28 @@ class FileStorage(Storage):
 
     def __repr__(self):
         return f"<FileStorage {self.path}>"
+
+
+class MetaStorage:
+    def get(self, hash: Hash):
+        holder = {}
+        for line in open(os.path.expanduser("~/.local/share/blobber.meta")):
+            if line.startswith(hash.hash + " "):
+                line = line[len(hash.hash) + 1 :]
+                word = line.split(" ")[0]
+                # print("WORD", word)
+                line = line[len(word) + 1 :]
+                # print("LINE", line)
+                holder[word] = json.loads(line)
+        return holder
+
+    def find_parent(self, hash: Hash):
+        for line in open(os.path.expanduser("~/.local/share/blobber.meta")):
+            parent = line[: Hash.HASHLEN]
+            line_rest = line[Hash.HASHLEN + 1 :]
+            keyword = line_rest.split(" ")[0]
+            if keyword == "children":
+                rest = line[len(hash.hash) + 1 + len(keyword) + 1 :]
+                children = json.loads(rest)
+                if hash in children:
+                    return Hash(parent), children.index(hash)

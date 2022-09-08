@@ -2,18 +2,22 @@ import json
 import os
 import shutil
 import sys
+from zipfile import ZipFile
 
 import click
 
+from .blob import Blob
 from .blobber import (
     blob_find,
     blob_open,
     blob_stat,
     get_blobs,
     get_storages,
+    blob_open_child,
 )
 from .hash import Hash, hashit
-from .storage import FileStorage
+from .storage import FileStorage, MetaStorage
+
 
 class HashParamType(click.ParamType):
     name = "hash"
@@ -110,6 +114,32 @@ def in_storage(hash: Hash):
     for storage in get_storages():
         if hash in storage:
             print(storage)
+
+
+@main.command()
+@click.argument("hash", type=HashParamType())
+def zip_read(hash: Hash):
+    if found := next(blob_find(hash)):
+        for storage in get_storages():
+            if found in storage:
+                zf = ZipFile(storage[found])
+                for ch in zf.filelist:
+                    print(ch.filename)
+
+
+@main.command()
+@click.argument("hash", type=HashParamType())
+@click.argument("index", type=click.INT)
+def child_num_cat(hash: Hash, index: int):
+    op = blob_open_child(hash, index)
+    shutil.copyfileobj(op, sys.stdout.buffer)
+
+
+@main.command()
+@click.argument("hash", type=HashParamType())
+def parent(hash: Hash):
+    if parent := MetaStorage().find_parent(hash):
+        print(parent[0])
 
 
 if __name__ == "__main__":
