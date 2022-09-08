@@ -15,6 +15,14 @@ from .blobber import (
 from .hash import Hash, hashit
 from .storage import FileStorage
 
+class HashParamType(click.ParamType):
+    name = "hash"
+
+    def convert(self, value, param, ctx):
+        if isinstance(value, Hash):
+            return value
+        return Hash(value)
+
 
 @click.group()
 def main():
@@ -46,26 +54,23 @@ def ls_storage():
 
 
 @main.command()
-@click.argument("hash")
-def stat(hash: str):
-    hashH = Hash(hash)
-    st = blob_stat(hashH)
+@click.argument("hash", type=HashParamType())
+def stat(hash: Hash):
+    st = blob_stat(hash)
     print(json.dumps(st))
 
 
 @main.command()
-@click.argument("hash")
-def cat(hash: str):
-    hashH = Hash(hash)
-    op = blob_open(hashH)
+@click.argument("hash", type=HashParamType())
+def cat(hash: Hash):
+    op = blob_open(hash)
     shutil.copyfileobj(op, sys.stdout.buffer)
 
 
 @main.command()
-@click.argument("hash")
-def find(hash: str):
-    hashH = Hash(hash)
-    for found in blob_find(hashH):
+@click.argument("hash", type=HashParamType())
+def find(hash: Hash):
+    for found in blob_find(hash):
         print(found)
 
 
@@ -81,12 +86,8 @@ def hashfile(filenames):
 @click.argument("filenames", nargs=-1, type=click.Path(exists=True))
 def put(filenames):
     for file in filenames:
-        if (
-            hash := FileStorage(
-                os.environ.get("BLOBBER_PUT_PATH", "~/.local/share/blobber/")
-            )
-            << file
-        ):
+        putpath = os.environ.get("BLOBBER_PUT_PATH", "~/.local/share/blobber/")
+        if hash := FileStorage(putpath) << file:
             print(hash)
 
 
@@ -97,11 +98,17 @@ def print_len():
 
 
 @main.command()
-@click.argument("hash")
-def in_storage(hash: str):
-    hashH = Hash(hash)
+@click.argument("hash", type=HashParamType())
+def children(hash: Hash):
+    for ch in Blob(hash):
+        print(ch)
+
+
+@main.command()
+@click.argument("hash", type=HashParamType())
+def in_storage(hash: Hash):
     for storage in get_storages():
-        if hashH in storage:
+        if hash in storage:
             print(storage)
 
 
