@@ -14,8 +14,11 @@
             doCheck = true;
 
             postCheck = ''
-            pyright --warnings
+              pyright --warnings
             '';
+
+            passthru.tests.version =
+              testers.testVersion { package = packages.default; };
 
             postInstall = ''
               installShellCompletion --cmd blobber \

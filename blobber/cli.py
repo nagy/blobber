@@ -7,6 +7,7 @@ from zipfile import ZipFile
 import click
 
 from .blob import Blob
+from . import __version__
 from .blobber import (
     blob_find,
     blob_open,
