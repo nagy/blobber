@@ -1,10 +1,11 @@
 from functools import cached_property
 
 from .storage import MetaStorage
+from .hash import Hash
 
 
 class Blob:
-    def __init__(self, value):
+    def __init__(self, value: Hash):
         self.value = value
 
     @cached_property

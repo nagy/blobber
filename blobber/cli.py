@@ -25,7 +25,18 @@ class HashParamType(click.ParamType):
     def convert(self, value, param, ctx):
         if isinstance(value, Hash):
             return value
-        return Hash(value)
+        return self.convert(Hash(value), param, ctx)
+
+
+class BlobParamType(click.ParamType):
+    name = "blob"
+
+    def convert(self, value, param, ctx):
+        if isinstance(value, Blob):
+            return value
+        if isinstance(value, Hash):
+            return self.convert(Blob(value), param, ctx)
+        return self.convert(Hash(value), param, ctx)
 
 
 @click.group()
@@ -133,6 +144,12 @@ def zip_read(hash: Hash):
 def child_num_cat(hash: Hash, index: int):
     op = blob_open_child(hash, index)
     shutil.copyfileobj(op, sys.stdout.buffer)
+
+
+@main.command()
+@click.argument("blob", type=BlobParamType())
+def meta(blob: Blob):
+    print(json.dumps(blob.meta, indent=4 if sys.stdout.isatty() else None))
 
 
 @main.command()
