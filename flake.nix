@@ -8,9 +8,11 @@
         packages.default =
           (mkPoetryApplication { projectDir = ./.; }).overrideAttrs (old: {
             nativeBuildInputs = old.nativeBuildInputs or [ ]
-              ++ [ pkgs.installShellFiles pkgs.pyright ];
+              ++ [ pkgs.installShellFiles ];
+            propagatedBuildInputs = (old.propagatedBuildInputs or []) ++ [ python3.pkgs.setuptools ];
             pythonImportsCheck = [ "blobber" ];
 
+            checkInputs = [ pkgs.pyright ];
             doCheck = true;
 
             postCheck = ''

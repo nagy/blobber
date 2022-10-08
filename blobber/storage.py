@@ -17,7 +17,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    def stat(self, hash: Hash):
+    def stat(self, hash: Hash) -> List[int]:
         pass
 
     @abstractmethod
@@ -56,14 +56,14 @@ class Storage(ABC):
 
 
 class FileStorage(Storage):
-    def __init__(self, path: str = "~/.local/share/blobber/"):
+    def __init__(self, path: str):
         super().__init__(path)
 
     def open(self, hash: Hash):
         return open(self.hashpath2(hash), "rb")
 
-    def stat(self, hash: Hash):
-        return os.stat(self.hashpath2(hash))
+    def stat(self, hash: Hash) -> List[int]:
+        return json.loads(json.dumps(os.stat(self.hashpath2(hash))))
 
     def exists(self, hash: Hash) -> bool:
         return os.path.exists(self.hashpath2(hash))
@@ -79,7 +79,7 @@ class FileStorage(Storage):
                     yield Hash(file)
 
     def list(self) -> Iterator[Hash]:
-        for _currentpath, _folders, files in os.walk(self.path):
+        for _, _, files in os.walk(self.path):
             for file in files:
                 yield Hash(file)
 

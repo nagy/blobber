@@ -53,6 +53,9 @@
 (defun blobber-list-storage ()
   (blobber--process-lines "ls-storage"))
 
+(defun blobber-resolve (identifier)
+  (blobber--process-string "resolve" identifier))
+
 (defun blobber-hash-func (filename)
   (interactive "f")
   (blobber--process-string "hashfile" filename))
@@ -63,14 +66,18 @@
 
 (defun blobber-stat (filename)
   (interactive "f")
-  (json-parse-string
-   (blobber--process-string "stat" filename)))
+  (ignore-errors
+    (json-parse-string
+     (blobber--process-string "stat" filename))))
 
 (defun blobber-size (filename)
   (interactive "f")
-  (elt
-   (blobber-stat filename)
-   6))
+  (blobber--process-string "size" filename))
+
+(defun blobber-meta (filename)
+  (ignore-errors
+    (json-parse-string
+     (blobber--process-string "meta" filename))))
 
 (defun blobber-dired-jump ()
   (interactive)
